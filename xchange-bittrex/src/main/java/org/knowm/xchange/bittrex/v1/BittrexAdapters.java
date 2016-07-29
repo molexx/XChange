@@ -39,7 +39,7 @@ public final class BittrexAdapters {
 
   // TODO move to metadata
   // https://bittrex.com/Fees says 'All trades have a 0.25% commission.'
-  private static final BigDecimal TRADING_FEE = new BigDecimal(0.25);
+  private static final BigDecimal TRADING_FEE = new BigDecimal(0.0025);
   private static final int PRICE_SCALE = 8;
 
   private BittrexAdapters() {
