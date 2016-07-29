@@ -5,7 +5,11 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
+import java.util.HashMap;
 
+import org.knowm.xchange.dto.meta.CurrencyPairMetaData;
+import org.knowm.xchange.dto.meta.ExchangeMetaData;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,6 +36,11 @@ import org.knowm.xchange.dto.trade.UserTrade;
 public final class BittrexAdapters {
 
   public static final Logger log = LoggerFactory.getLogger(BittrexAdapters.class);
+
+  // TODO move to metadata
+  // https://bittrex.com/Fees says 'All trades have a 0.25% commission.'
+  private static final BigDecimal TRADING_FEE = new BigDecimal(0.25);
+  private static final int PRICE_SCALE = 8;
 
   private BittrexAdapters() {
 
@@ -171,6 +180,21 @@ public final class BittrexAdapters {
     }
 
     return new UserTrade(orderType, amount, currencyPair, price, date, orderId, orderId, trade.getCommission(), currencyPair.counter);
+  }
+
+  public static ExchangeMetaData adaptToExchangeMetaData(List<BittrexSymbol> bittrexSymbols) {
+
+    Map<CurrencyPair, CurrencyPairMetaData> currencyPairs = new HashMap<CurrencyPair, CurrencyPairMetaData>();
+
+    for (BittrexSymbol symbol : bittrexSymbols) {
+      CurrencyPair currencyPair = adaptCurrencyPair(symbol);
+      CurrencyPairMetaData currencyPairMetaData = new CurrencyPairMetaData(TRADING_FEE, BigDecimal.valueOf(symbol.getMinTradeSize().doubleValue()), null, PRICE_SCALE);
+      currencyPairs.put(currencyPair, currencyPairMetaData);
+    }
+
+    ExchangeMetaData exchangeMetaData = new ExchangeMetaData(currencyPairs, null, null, null, null);
+
+    return exchangeMetaData;
   }
 
 }
